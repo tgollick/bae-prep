@@ -1,0 +1,36 @@
+﻿# C build artefacts
+*.o
+*.out
+*.exe
+a.out
+
+# Logs
+logs/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+*.egg-info/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Plot outputs
+outputs/
+
+# Ada
+*.ali
+*.o
+obj/
+*.gpr~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+*.swp
