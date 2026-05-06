@@ -1,6 +1,6 @@
 ﻿# BAE Systems â€” Pre-Employment Prep
 
-Software Engineering preparation for BAE Maritime Services (Spearfish programme), September 2025 start.
+Software Engineering preparation for BAE Maritime Services.
 
 ## Structure
 
