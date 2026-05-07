@@ -1,12 +1,13 @@
 #include <stdio.h>
 
-int main() {
-    
+int main()
+{
+
     // Integer overflow
 
     // Predicition: This I would guess from my reading so far may either produce a similar,
     // wrap around modulo effect as size_t or will simply overflow and cause the program to crash
-    
+
     // Actual result: C doesn't treat an integer overflow as a crash but as undefined behaviour
     // the compiler will define the outcome/behaviour which in this case was a wrap around to the,
     // largest negative value a short can be which is -32767, you cannot rely on this wrap around,
@@ -51,6 +52,6 @@ int main() {
     printf("Size of int is %zu bytes\n", sizeof(int));
     printf("Size of long is %zu bytes\n", sizeof(long));
     printf("Size of double is %zu bytes\n", sizeof(double));
-    
+
     return 0;
 }
