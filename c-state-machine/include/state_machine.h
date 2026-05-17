@@ -1,4 +1,7 @@
-﻿// This file outlines the states, commands and a struct to hold a basic state machine object.
+﻿#ifndef STATE_MACHINE_H
+#define STATE_MACHINE_H
+
+// This file outlines the states, commands and a struct to hold a basic state machine object.
 
 // All states outlined in the state-diagram.md file
 typedef enum
@@ -34,88 +37,12 @@ typedef struct
     // Will outline more members of this object later down the line
 } StateMachine;
 
-const State translation_table[STATE_COUNT][CMD_COUNT] = {
-    {
-        // SAFE ROW
-        STATE_ARMING, // ARM_CMD
-        STATE_COUNT,  // ENABLE_CMD - INVALID
-        STATE_COUNT,  // FIRE_CMD - INVALID
-        STATE_COUNT,  // ABORT_CMD - INVALID
-        STATE_COUNT,  // RESET_CMD - INVALID
-        STATE_COUNT,  // FAULT_DETECTED - INVALID
-        STATE_COUNT,  // ARMING_COMPLETE - INVALID
-        STATE_COUNT,  // DISARMING_COMPLETE - INVALID
-    },
+extern const State translation_table[STATE_COUNT][CMD_COUNT];
 
-    {
-        // ARMING ROW
-        STATE_COUNT,     // ARM_CMD - INVALID
-        STATE_COUNT,     // ENABLE_CMD - INVALID
-        STATE_COUNT,     // FIRE_CMD - INVALID
-        STATE_DISARMING, // ABORT_CMD
-        STATE_COUNT,     // RESET_CMD - INVALID
-        STATE_FAULT,     // FAULT_DETECTED
-        STATE_ARMED,     // ARMING_COMPLETE
-        STATE_COUNT,     // DISARMING_COMPLETE - INVALID
-    },
+const char *state_to_string(State s);
 
-    {
-        // ARMED ROW
-        STATE_COUNT,     // ARM_CMD - INVALID
-        STATE_ENABLED,   // ENABLE_CMD
-        STATE_COUNT,     // FIRE_CMD - INVALID
-        STATE_DISARMING, // ABORT_CMD
-        STATE_COUNT,     // RESET_CMD - INVALID
-        STATE_FAULT,     // FAULT_DETECTED
-        STATE_COUNT,     // ARMING_COMPLETE - INVALID
-        STATE_COUNT,     // DISARMING_COMPLETE - INVALID
-    },
+const char *command_to_string(Command c);
 
-    {
-        // ENABLED ROW
-        STATE_COUNT,     // ARM_CMD - INVALID
-        STATE_COUNT,     // ENABLE_CMD - INVALID
-        STATE_FIRED,     // FIRE_CMD
-        STATE_DISARMING, // ABORT_CMD
-        STATE_COUNT,     // RESET_CMD - INVALID
-        STATE_FAULT,     // FAULT_DETECTED
-        STATE_COUNT,     // ARMING_COMPLETE - INVALID
-        STATE_COUNT,     // DISARMING_COMPLETE - INVALID
-    },
+void dispatch(StateMachine *sm, Command cmd);
 
-    {
-        // FIRED ROW
-        STATE_COUNT, // ARM_CMD - INVALID
-        STATE_COUNT, // ENABLE_CMD - INVALID
-        STATE_COUNT, // FIRE_CMD - INVALID
-        STATE_COUNT, // ABORT_CMD - INVALID
-        STATE_COUNT, // RESET_CMD - INVALID
-        STATE_COUNT, // FAULT_DETECTED - INVALID
-        STATE_COUNT, // ARMING_COMPLETE - INVALID
-        STATE_COUNT, // DISARMING_COMPLETE - INVALID
-    },
-
-    {
-        // DISARMING ROW
-        STATE_COUNT, // ARM_CMD - INVALID
-        STATE_COUNT, // ENABLE_CMD - INVALID
-        STATE_COUNT, // FIRE_CMD - INVALID
-        STATE_COUNT, // ABORT_CMD - INVALID
-        STATE_COUNT, // RESET_CMD - INVALID
-        STATE_FAULT, // FAULT_DETECTED
-        STATE_COUNT, // ARMING_COMPLETE - INVALID
-        STATE_SAFE,  // DISARMING_COMPLETE
-    },
-
-    {
-        // FAULT ROW
-        STATE_COUNT,     // ARM_CMD - INVALID
-        STATE_COUNT,     // ENABLE_CMD - INVALID
-        STATE_COUNT,     // FIRE_CMD - INVALID
-        STATE_COUNT,     // ABORT_CMD - INVALID
-        STATE_DISARMING, // RESET_CMD
-        STATE_COUNT,     // FAULT_DETECTED - INVALID
-        STATE_COUNT,     // ARMING_COMPLETE - INVALID
-        STATE_COUNT,     // DISARMING_COMPLETE - INVALID
-    },
-};
+#endif

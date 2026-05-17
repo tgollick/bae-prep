@@ -1,0 +1,183 @@
+#include "state_machine.h"
+#include <stdio.h>
+
+const State translation_table[STATE_COUNT][CMD_COUNT] = {
+    {
+        // SAFE ROW
+        STATE_ARMING, // ARM_CMD
+        STATE_COUNT,  // ENABLE_CMD - INVALID
+        STATE_COUNT,  // FIRE_CMD - INVALID
+        STATE_COUNT,  // ABORT_CMD - INVALID
+        STATE_COUNT,  // RESET_CMD - INVALID
+        STATE_COUNT,  // FAULT_DETECTED - INVALID
+        STATE_COUNT,  // ARMING_COMPLETE - INVALID
+        STATE_COUNT,  // DISARMING_COMPLETE - INVALID
+    },
+
+    {
+        // ARMING ROW
+        STATE_COUNT,     // ARM_CMD - INVALID
+        STATE_COUNT,     // ENABLE_CMD - INVALID
+        STATE_COUNT,     // FIRE_CMD - INVALID
+        STATE_DISARMING, // ABORT_CMD
+        STATE_COUNT,     // RESET_CMD - INVALID
+        STATE_FAULT,     // FAULT_DETECTED
+        STATE_ARMED,     // ARMING_COMPLETE
+        STATE_COUNT,     // DISARMING_COMPLETE - INVALID
+    },
+
+    {
+        // ARMED ROW
+        STATE_COUNT,     // ARM_CMD - INVALID
+        STATE_ENABLED,   // ENABLE_CMD
+        STATE_COUNT,     // FIRE_CMD - INVALID
+        STATE_DISARMING, // ABORT_CMD
+        STATE_COUNT,     // RESET_CMD - INVALID
+        STATE_FAULT,     // FAULT_DETECTED
+        STATE_COUNT,     // ARMING_COMPLETE - INVALID
+        STATE_COUNT,     // DISARMING_COMPLETE - INVALID
+    },
+
+    {
+        // ENABLED ROW
+        STATE_COUNT,     // ARM_CMD - INVALID
+        STATE_COUNT,     // ENABLE_CMD - INVALID
+        STATE_FIRED,     // FIRE_CMD
+        STATE_DISARMING, // ABORT_CMD
+        STATE_COUNT,     // RESET_CMD - INVALID
+        STATE_FAULT,     // FAULT_DETECTED
+        STATE_COUNT,     // ARMING_COMPLETE - INVALID
+        STATE_COUNT,     // DISARMING_COMPLETE - INVALID
+    },
+
+    {
+        // FIRED ROW
+        STATE_COUNT, // ARM_CMD - INVALID
+        STATE_COUNT, // ENABLE_CMD - INVALID
+        STATE_COUNT, // FIRE_CMD - INVALID
+        STATE_COUNT, // ABORT_CMD - INVALID
+        STATE_COUNT, // RESET_CMD - INVALID
+        STATE_COUNT, // FAULT_DETECTED - INVALID
+        STATE_COUNT, // ARMING_COMPLETE - INVALID
+        STATE_COUNT, // DISARMING_COMPLETE - INVALID
+    },
+
+    {
+        // FAULT ROW
+        STATE_COUNT,     // ARM_CMD - INVALID
+        STATE_COUNT,     // ENABLE_CMD - INVALID
+        STATE_COUNT,     // FIRE_CMD - INVALID
+        STATE_COUNT,     // ABORT_CMD - INVALID
+        STATE_DISARMING, // RESET_CMD
+        STATE_COUNT,     // FAULT_DETECTED - INVALID
+        STATE_COUNT,     // ARMING_COMPLETE - INVALID
+        STATE_COUNT,     // DISARMING_COMPLETE - INVALID
+    },
+
+    {
+        // DISARMING ROW
+        STATE_COUNT, // ARM_CMD - INVALID
+        STATE_COUNT, // ENABLE_CMD - INVALID
+        STATE_COUNT, // FIRE_CMD - INVALID
+        STATE_COUNT, // ABORT_CMD - INVALID
+        STATE_COUNT, // RESET_CMD - INVALID
+        STATE_FAULT, // FAULT_DETECTED
+        STATE_COUNT, // ARMING_COMPLETE - INVALID
+        STATE_SAFE,  // DISARMING_COMPLETE
+    },
+
+};
+
+const char *state_to_string(State s)
+{
+    switch (s)
+    {
+    case STATE_SAFE:
+        return "SAFE";
+    case STATE_ARMING:
+        return "ARMING";
+    case STATE_ARMED:
+        return "ARMED";
+    case STATE_ENABLED:
+        return "ENABLED";
+    case STATE_FIRED:
+        return "FIRED";
+    case STATE_FAULT:
+        return "FAULT";
+    case STATE_DISARMING:
+        return "DISARMING";
+    default:
+        return "UNKNOWN";
+    }
+}
+
+const char *command_to_string(Command c)
+{
+    switch (c)
+    {
+    case CMD_ARM:
+        return "ARM";
+    case CMD_ENABLE:
+        return "ENABLE";
+    case CMD_FIRE:
+        return "FIRE";
+    case CMD_ABORT:
+        return "ABORT";
+    case CMD_RESET:
+        return "RESET";
+    case CMD_FAULT_DETECTED:
+        return "FAULT_DETECTED";
+    case CMD_ARMING_COMPLETE:
+        return "ARMING_COMPLETE";
+    case CMD_DISARMING_COMPLETE:
+        return "DISARMING_COMPLETE";
+    default:
+        return "UNKNOWN";
+    }
+}
+
+void dispatch(StateMachine *sm, Command cmd)
+{
+    // First validate the command and current state
+    // Although the current state or incoming command should never be STATE_COUNT
+    // or CMD_COUNT its worth including the value it represents in our comparisons
+    // to be water tight regarding validation
+    if (sm->current_state < 0 || sm->current_state >= STATE_COUNT)
+    {
+        printf("ERROR: Current state is invalid\n");
+        printf("ERROR: Transitioning to FAULT State\n");
+        sm->current_state = STATE_FAULT;
+        return;
+    }
+
+    if (cmd < 0 || cmd >= CMD_COUNT)
+    {
+        printf("ERROR: Invalid Command\n");
+        printf("ERROR: Transitioning to FAULT State\n");
+        sm->current_state = STATE_FAULT;
+        return;
+    }
+
+    // Look up next state in the transition table
+    State next_state = translation_table[sm->current_state][cmd];
+
+    // Check if the transition is valid
+    if (next_state == STATE_COUNT)
+    {
+        printf("ERROR: This transition is invalid!\n");
+        return;
+    }
+    // Otherwise state is valid, update the state
+    else
+    {
+        // Now we know the state transition is valid, log first to save the need to copy
+        // The current or "old state"
+        printf("LOG: Transition from %s to %s via command %s\n",
+               state_to_string(sm->current_state),
+               state_to_string(next_state),
+               command_to_string(cmd));
+
+        // Then update the current_state to the newly transitioned state
+        sm->current_state = next_state;
+    }
+}
