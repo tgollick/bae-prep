@@ -40,6 +40,10 @@ bool dequeue(Event *output) {
     // Return the current next event to the output pointer
     *output = q.buffer[q.head];
 
+    // Update the queue's variables to reflect the dequeue event
+    q.head = (q.head + 1) % QUEUE_SIZE;
+    q.count--;
+
     // Then return true to indicate a valid dequeue
     return true;
   }
