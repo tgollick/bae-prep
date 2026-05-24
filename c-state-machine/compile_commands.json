@@ -1,0 +1,12 @@
+[
+  {
+    "directory": "C:/Users/thoma/bae-prep/c-state-machine",
+    "command": "gcc -Wall -Wextra -std=c99 -Iinclude -o main src/main.c src/event_queue.c",
+    "file": "src/event_queue.c"
+  },
+  {
+    "directory": "C:/Users/thoma/bae-prep/c-state-machine",
+    "command": "gcc -Wall -Wextra -std=c99 -Iinclude -o main src/main.c src/event_queue.c",
+    "file": "src/main.c"
+  }
+]
