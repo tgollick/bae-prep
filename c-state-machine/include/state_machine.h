@@ -28,8 +28,6 @@ extern const State translation_table[STATE_COUNT][CMD_COUNT];
 
 const char *state_to_string(State s);
 
-const char *command_to_string(Command c);
-
 void dispatch(StateMachine *sm, Command cmd);
 
 #endif

@@ -124,40 +124,21 @@ const char *state_to_string(State s) {
   }
 }
 
-const char *command_to_string(Command c) {
-  switch (c) {
-  case CMD_ARM:
-    return "ARM";
-  case CMD_ENABLE:
-    return "ENABLE";
-  case CMD_FIRE:
-    return "FIRE";
-  case CMD_ABORT:
-    return "ABORT";
-  case CMD_RESET:
-    return "RESET";
-  case CMD_FAULT_DETECTED:
-    return "FAULT_DETECTED";
-  default:
-    return "UNKNOWN";
-  }
-}
-
 void dispatch(StateMachine *sm, Command cmd) {
   // First validate the command and current state
   // Although the current state or incoming command should never be STATE_COUNT
   // or CMD_COUNT its worth including the value it represents in our comparisons
   // to be water tight regarding validation
   if (sm->current_state < 0 || sm->current_state >= STATE_COUNT) {
-    printf("ERROR: Current state is invalid\n");
-    printf("ERROR: Transitioning to FAULT State\n");
+    printf("MAIN ERROR: Current state is invalid\n");
+    printf("MAIN ERROR: Transitioning to FAULT State\n");
     sm->current_state = STATE_FAULT;
     return;
   }
 
   if (cmd < 0 || cmd >= CMD_COUNT) {
-    printf("ERROR: Invalid Command\n");
-    printf("ERROR: Transitioning to FAULT State\n");
+    printf("MAIN ERROR: Invalid Command\n");
+    printf("MAIN ERROR: Transitioning to FAULT State\n");
     sm->current_state = STATE_FAULT;
     return;
   }
@@ -167,14 +148,14 @@ void dispatch(StateMachine *sm, Command cmd) {
 
   // Check if the transition is valid
   if (next_state == STATE_COUNT) {
-    printf("ERROR: This transition is invalid!\n");
+    printf("MAIN ERROR: This transition is invalid!\n");
     return;
   }
   // Otherwise state is valid, update the state
   else {
     // Now we know the state transition is valid, log first to save the need to
     // copy The current or "old state"
-    printf("LOG: Transition from %s to %s via command %s\n",
+    printf("MAIN LOG: Transition from %s to %s via command %s\n",
            state_to_string(sm->current_state), state_to_string(next_state),
            command_to_string(cmd));
 

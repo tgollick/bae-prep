@@ -1,5 +1,5 @@
-#ifndef H_EVENTS
-#define H_EVENTS
+#ifndef EVENTS_H
+#define EVENTS_H
 
 typedef enum {
   // Main State Commands
@@ -17,4 +17,5 @@ typedef enum {
   CMD_COUNT
 } Command;
 
+const char *command_to_string(Command c);
 #endif
