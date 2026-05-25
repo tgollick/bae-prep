@@ -3,7 +3,7 @@
 #include <stdio.h>
 
 const InterlockState
-    interlock_translation_table[STATE_COUNT_INTERLOCK][CMD_COUNT] = {
+    interlock_transition_table[STATE_COUNT_INTERLOCK][CMD_COUNT] = {
         {
             // CLOSED ROW
             STATE_OPENING,         // ARM_CMD

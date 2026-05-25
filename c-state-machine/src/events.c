@@ -19,7 +19,7 @@ const char *command_to_string(Command c) {
   case CMD_INTERLOCK_OPENED:
     return "INTERLOCK_OPENED";
   case CMD_INTERLOCK_FAULT_DETECTED:
-    return "INTERLOCK_FAULT_DETECED";
+    return "INTERLOCK_FAULT_DETECTED";
   default:
     return "UNKNOWN";
   }
