@@ -41,8 +41,8 @@ const State_Action interlock_action_table[STATE_COUNT_INTERLOCK] = {
                     .on_exit = &interlock_open_exit},
 
     // OPENING
-    [STATE_OPENING] = {.on_entry = &interlock_open_entry,
-                       .on_exit = &interlock_open_exit},
+    [STATE_OPENING] = {.on_entry = &interlock_opening_entry,
+                       .on_exit = &interlock_opening_exit},
 
     // CLOSING
     [STATE_CLOSING] = {.on_entry = &interlock_closing_entry,
