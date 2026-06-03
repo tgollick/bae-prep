@@ -153,12 +153,6 @@ void dispatch(StateMachine *sm, Command cmd) {
   }
   // Otherwise state is valid, update the state
   else {
-    // Now we know the state transition is valid, log first to save the need to
-    // copy The current or "old state"
-    printf("MAIN LOG: Transition from %s to %s via command %s\n",
-           state_to_string(sm->current_state), state_to_string(next_state),
-           command_to_string(cmd));
-
     // Then update the current_state to the newly transitioned state
     sm->current_state = next_state;
   }
