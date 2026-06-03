@@ -114,7 +114,7 @@ void interlock_dispatch(InterlockStateMachine *sm, Command cmd) {
 
   // Look up next state in the transition table
   InterlockState next_state =
-      interlock_translation_table[sm->current_state][cmd];
+      interlock_transition_table[sm->current_state][cmd];
 
   // Check if the transition is valid
   if (next_state == STATE_COUNT_INTERLOCK) {

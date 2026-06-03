@@ -3,7 +3,6 @@
 #include "interlock.h"
 #include "router.h"
 #include "state_machine.h"
-#include <Windows.h>
 #include <stdio.h>
 
 int main(void) {
