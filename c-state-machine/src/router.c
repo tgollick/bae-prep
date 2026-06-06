@@ -1,7 +1,5 @@
 #include <stdbool.h>
 
-#include "actions.h"
-#include "event_queue.h"
 #include "events.h"
 #include "interlock.h"
 #include "router.h"
@@ -52,42 +50,22 @@ void router(Command cmd, StateMachine *sm,
   if (cmd >= CMD_INTERLOCK_OPENED) {
     // Handling the routing of the Interlock State Machine
     if (routing_table[cmd][MACHINE_INTERLOCK]) {
-      interlock_action_table[ism->current_state].on_exit();
       interlock_dispatch(ism, cmd);
-
-      if (interlock_action_table[ism->current_state].on_entry()) {
-        enqueue(CMD_INTERLOCK_FAULT_DETECTED);
-      }
     }
 
     // Handling the routing of the main State Machine
     if (routing_table[cmd][MACHINE_MAIN]) {
-      main_action_table[sm->current_state].on_exit();
       main_dispatch(sm, cmd);
-
-      if (main_action_table[sm->current_state].on_entry()) {
-        enqueue(CMD_FAULT_DETECTED);
-      }
     }
   } else {
     // Handling the routing of the main State Machine
     if (routing_table[cmd][MACHINE_MAIN]) {
-      main_action_table[sm->current_state].on_exit();
       main_dispatch(sm, cmd);
-
-      if (main_action_table[sm->current_state].on_entry()) {
-        enqueue(CMD_FAULT_DETECTED);
-      }
     }
 
     // Handling the routing of the Interlock State Machine
     if (routing_table[cmd][MACHINE_INTERLOCK]) {
-      interlock_action_table[ism->current_state].on_exit();
       interlock_dispatch(ism, cmd);
-
-      if (interlock_action_table[ism->current_state].on_entry()) {
-        enqueue(CMD_INTERLOCK_FAULT_DETECTED);
-      }
     }
   }
 }

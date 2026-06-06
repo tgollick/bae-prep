@@ -1,4 +1,5 @@
 #include "interlock.h"
+#include "actions.h"
 #include "events.h"
 #include <stdio.h>
 
@@ -123,7 +124,18 @@ void interlock_dispatch(InterlockStateMachine *sm, Command cmd) {
   }
   // Otherwise state is valid, update the state
   else {
+    // Now we know the next transition is value, execute the on_exit function
+    // for the current state
+    interlock_action_table[sm->current_state].on_exit();
+
     // Then update the current_state to the newly transitioned state
     sm->current_state = next_state;
+
+    // Now state has transitioned we have 'entered' the next state, check if the
+    // on_entry is valid, otherwise transition to FAULT to ensure safety is
+    // prioritised.
+    if (interlock_action_table[sm->current_state].on_entry()) {
+      sm->current_state = STATE_FAULT_INTERLOCK;
+    }
   }
 }

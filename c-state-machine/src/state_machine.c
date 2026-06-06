@@ -1,5 +1,7 @@
 #include "state_machine.h"
+#include "actions.h"
 #include "events.h"
+#include "timer.h"
 #include <stdio.h>
 
 const State translation_table[STATE_COUNT][CMD_COUNT] = {
@@ -153,7 +155,18 @@ void dispatch(StateMachine *sm, Command cmd) {
   }
   // Otherwise state is valid, update the state
   else {
-    // Then update the current_state to the newly transitioned state
+    // Now we know the transition to next state is valid, execute the on_exit
+    // command
+    main_action_table[sm->current_state].on_exit();
+
+    // Update state to next state
     sm->current_state = next_state;
+
+    // Now we have 'entered' the next state, execute the on_entry function, if
+    // returned ACTION_OK do nothing, otherwise transition to fault
+    // This is the safety standard if the entry command faults for any reason
+    if (main_action_table[sm->current_state].on_entry()) {
+      sm->current_state = STATE_FAULT;
+    }
   }
 }
