@@ -2,6 +2,8 @@
 #define STATE_MACHINE_H
 
 #include "events.h"
+#include "watchdog.h"
+#include <stdint.h>
 
 // This file outlines the states, commands and a struct to hold a basic state
 // machine object.
@@ -20,11 +22,12 @@ typedef enum {
 
 typedef struct {
   State current_state;
+  Watchdog wd;
 
-  // Will outline more members of this object later down the line
 } StateMachine;
 
 extern const State translation_table[STATE_COUNT][CMD_COUNT];
+extern const uint32_t main_timeout_table[STATE_COUNT];
 
 const char *state_to_string(State s);
 

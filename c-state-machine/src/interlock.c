@@ -1,5 +1,6 @@
 #include "interlock.h"
 #include "actions.h"
+#include "clock.h"
 #include "events.h"
 #include <stdio.h>
 
@@ -77,6 +78,14 @@ const InterlockState
 
 };
 
+const uint32_t interlock_timeout_table[STATE_COUNT_INTERLOCK] = {
+    0, // STATE_CLOSED,
+    0, // STATE_OPEN,
+    1, // STATE_OPENING,
+    1, // STATE_CLOSING,
+    0, // STATE_FAULT_INTERLOCK,
+};
+
 const char *interlock_state_to_string(InterlockState s) {
   switch (s) {
   case STATE_CLOSED:
@@ -130,6 +139,14 @@ void interlock_dispatch(InterlockStateMachine *sm, Command cmd) {
 
     // Then update the current_state to the newly transitioned state
     sm->current_state = next_state;
+
+    // Check if the next state should be monitored by the watchdog,if so set
+    // enabled to true and mark the start_tick
+    sm->wd.enabled = interlock_timeout_table[sm->current_state];
+
+    if (sm->wd.enabled) {
+      sm->wd.start_tick = now();
+    }
 
     // Now state has transitioned we have 'entered' the next state, check if the
     // on_entry is valid, otherwise transition to FAULT to ensure safety is

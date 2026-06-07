@@ -1,7 +1,8 @@
 #include "state_machine.h"
 #include "actions.h"
+#include "clock.h"
 #include "events.h"
-#include "timer.h"
+#include <stdint.h>
 #include <stdio.h>
 
 const State translation_table[STATE_COUNT][CMD_COUNT] = {
@@ -105,6 +106,16 @@ const State translation_table[STATE_COUNT][CMD_COUNT] = {
 
 };
 
+const uint32_t main_timeout_table[STATE_COUNT] = {
+    0, // STATE_SAFE,
+    1, // STATE_ARMING,
+    0, // STATE_ARMED,
+    0, // STATE_ENABLED,
+    0, // STATE_FIRED,
+    0, // STATE_FAULT,
+    1, // STATE_DISARMING,
+};
+
 const char *state_to_string(State s) {
   switch (s) {
   case STATE_SAFE:
@@ -161,6 +172,14 @@ void dispatch(StateMachine *sm, Command cmd) {
 
     // Update state to next state
     sm->current_state = next_state;
+
+    // Turn on the watchdog if the next state requires and set the start_tick to
+    // the current time
+    sm->wd.enabled = main_timeout_table[sm->current_state];
+
+    if (sm->wd.enabled) {
+      sm->wd.start_tick = now();
+    }
 
     // Now we have 'entered' the next state, execute the on_entry function, if
     // returned ACTION_OK do nothing, otherwise transition to fault
