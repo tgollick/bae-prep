@@ -141,10 +141,11 @@ void interlock_dispatch(InterlockStateMachine *sm, Command cmd) {
     sm->current_state = next_state;
 
     // Check if the next state should be monitored by the watchdog,if so set
-    // enabled to true and mark the start_tick
-    sm->wd.enabled = interlock_timeout_table[sm->current_state];
+    // enabled to true and mark the start_tick and also set limit if valid
+    sm->wd.enabled = (interlock_timeout_table[sm->current_state] != 0);
 
     if (sm->wd.enabled) {
+      sm->wd.limit = interlock_timeout_table[sm->current_state];
       sm->wd.start_tick = now();
     }
 

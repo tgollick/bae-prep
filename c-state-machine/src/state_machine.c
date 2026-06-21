@@ -174,10 +174,11 @@ void dispatch(StateMachine *sm, Command cmd) {
     sm->current_state = next_state;
 
     // Turn on the watchdog if the next state requires and set the start_tick to
-    // the current time
-    sm->wd.enabled = main_timeout_table[sm->current_state];
+    // the current time and limit to the defined limit
+    sm->wd.enabled = (main_timeout_table[sm->current_state] != 0);
 
     if (sm->wd.enabled) {
+      sm->wd.limit = main_timeout_table[sm->current_state];
       sm->wd.start_tick = now();
     }
 
