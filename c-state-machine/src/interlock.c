@@ -79,11 +79,11 @@ const InterlockState
 };
 
 const uint32_t interlock_timeout_table[STATE_COUNT_INTERLOCK] = {
-    0, // STATE_CLOSED,
-    0, // STATE_OPEN,
-    1, // STATE_OPENING,
-    1, // STATE_CLOSING,
-    0, // STATE_FAULT_INTERLOCK,
+    0,   // STATE_CLOSED          — resting
+    0,   // STATE_OPEN            — holds open
+    500, // STATE_OPENING         — hatch driving open
+    500, // STATE_CLOSING         — hatch driving closed
+    0,   // STATE_FAULT_INTERLOCK — terminal until RESET
 };
 
 const char *interlock_state_to_string(InterlockState s) {

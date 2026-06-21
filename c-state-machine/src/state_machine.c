@@ -107,13 +107,13 @@ const State translation_table[STATE_COUNT][CMD_COUNT] = {
 };
 
 const uint32_t main_timeout_table[STATE_COUNT] = {
-    0, // STATE_SAFE,
-    1, // STATE_ARMING,
-    0, // STATE_ARMED,
-    0, // STATE_ENABLED,
-    0, // STATE_FIRED,
-    0, // STATE_FAULT,
-    1, // STATE_DISARMING,
+    0,   // STATE_SAFE      — resting, not timed
+    800, // STATE_ARMING    — backstop over the interlock opening
+    0,   // STATE_ARMED     — awaits operator ENABLE_CMD
+    0,   // STATE_ENABLED   — awaits operator FIRE_CMD
+    0,   // STATE_FIRED     — terminal
+    0,   // STATE_FAULT     — terminal until RESET
+    800, // STATE_DISARMING — backstop over the interlock closing
 };
 
 const char *state_to_string(State s) {
