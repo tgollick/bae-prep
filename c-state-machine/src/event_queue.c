@@ -1,6 +1,6 @@
 #include "event_queue.h"
 
-EventQueue q;
+static EventQueue q;
 
 void queue_init() {
   q.count = 0;
