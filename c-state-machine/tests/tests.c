@@ -57,7 +57,126 @@ static void test_watchdog_check(void) {
 
   // Don't really know what else to test for here...
 }
-static void test_transitions(void) { /* */ }
+
+/* ---- Transition tests --------------------------------------------------- */
+/* Force a known source state, dispatch one command, check the resulting      */
+/* state against the value hard-coded here. Helpers print state/command names */
+/* on failure. Expect this to be NOISY - every dispatch fires entry/exit */
+/* actions that printf; scroll for FAIL lines and the final summary. */
+
+static void check_main(State from, Command cmd, State expected) {
+  StateMachine sm = {.current_state = from}; /* wd zero-inits */
+  dispatch(&sm, cmd);
+  checks_run++;
+  if (sm.current_state != expected) {
+    checks_failed++;
+    printf("FAIL: main [%s] + %s -> expected %s, got %s\n",
+           state_to_string(from), command_to_string(cmd),
+           state_to_string(expected), state_to_string(sm.current_state));
+  }
+}
+
+static void check_interlock(InterlockState from, Command cmd,
+                            InterlockState expected) {
+  InterlockStateMachine ism = {.current_state = from};
+  interlock_dispatch(&ism, cmd);
+  checks_run++;
+  if (ism.current_state != expected) {
+    checks_failed++;
+    printf("FAIL: interlock [%s] + %s -> expected %s, got %s\n",
+           interlock_state_to_string(from), command_to_string(cmd),
+           interlock_state_to_string(expected),
+           interlock_state_to_string(ism.current_state));
+  }
+}
+
+static void test_main_transitions(void) {
+  /* --- Valid operational path --- */
+  check_main(STATE_SAFE, CMD_ARM, STATE_ARMING);
+  check_main(STATE_ARMING, CMD_INTERLOCK_OPENED, STATE_ARMED);
+  check_main(STATE_ARMED, CMD_ENABLE, STATE_ENABLED);
+  check_main(STATE_ENABLED, CMD_FIRE, STATE_FIRED);
+  check_main(STATE_ARMING, CMD_ABORT, STATE_DISARMING);
+  check_main(STATE_ARMED, CMD_ABORT, STATE_DISARMING);
+  check_main(STATE_ENABLED, CMD_ABORT, STATE_DISARMING);
+  check_main(STATE_DISARMING, CMD_INTERLOCK_CLOSED, STATE_SAFE);
+  check_main(STATE_FAULT, CMD_RESET, STATE_DISARMING);
+
+  /* --- Fault entry from every operational state --- */
+  check_main(STATE_SAFE, CMD_FAULT_DETECTED, STATE_FAULT);
+  check_main(STATE_SAFE, CMD_INTERLOCK_FAULT_DETECTED, STATE_FAULT);
+  check_main(STATE_ARMING, CMD_FAULT_DETECTED, STATE_FAULT);
+  check_main(STATE_ARMING, CMD_INTERLOCK_FAULT_DETECTED, STATE_FAULT);
+  check_main(STATE_ARMED, CMD_FAULT_DETECTED, STATE_FAULT);
+  check_main(STATE_ARMED, CMD_INTERLOCK_FAULT_DETECTED, STATE_FAULT);
+  check_main(STATE_ENABLED, CMD_FAULT_DETECTED, STATE_FAULT);
+  check_main(STATE_ENABLED, CMD_INTERLOCK_FAULT_DETECTED, STATE_FAULT);
+  check_main(STATE_DISARMING, CMD_FAULT_DETECTED, STATE_FAULT);
+  check_main(STATE_DISARMING, CMD_INTERLOCK_FAULT_DETECTED, STATE_FAULT);
+
+  /* --- Safety-critical rejections: state must NOT change --- */
+  /* Dual-interlock guarantee: ARMED is reachable ONLY via ARMING +         */
+  /* INTERLOCK_OPENED. A direct SAFE->ARMED shortcut must be impossible.     */
+  check_main(STATE_SAFE, CMD_INTERLOCK_OPENED, STATE_SAFE);
+  check_main(STATE_SAFE, CMD_ENABLE, STATE_SAFE);
+  check_main(STATE_SAFE, CMD_FIRE, STATE_SAFE);
+  /* No premature firing: ARMED cannot jump straight to FIRED. */
+  check_main(STATE_ARMED, CMD_FIRE, STATE_ARMED);
+  /* No re-arming or step-skipping. */
+  check_main(STATE_ARMING, CMD_ARM, STATE_ARMING);
+  check_main(STATE_ARMING, CMD_ENABLE, STATE_ARMING);
+  check_main(STATE_ARMED, CMD_ARM, STATE_ARMED);
+  check_main(STATE_ENABLED, CMD_ENABLE, STATE_ENABLED);
+  /* FIRED is terminal: nothing moves it, not even a fault. */
+  check_main(STATE_FIRED, CMD_ABORT, STATE_FIRED);
+  check_main(STATE_FIRED, CMD_FAULT_DETECTED, STATE_FIRED);
+  /* FAULT leaves only via RESET. */
+  check_main(STATE_FAULT, CMD_ARM, STATE_FAULT);
+  check_main(STATE_FAULT, CMD_ABORT, STATE_FAULT);
+  check_main(STATE_FAULT, CMD_FAULT_DETECTED, STATE_FAULT);
+}
+
+static void test_interlock_transitions(void) {
+  /* --- Valid operational path --- */
+  check_interlock(STATE_CLOSED, CMD_ARM, STATE_OPENING);
+  check_interlock(STATE_OPENING, CMD_INTERLOCK_OPENED, STATE_OPEN);
+  check_interlock(STATE_OPENING, CMD_ABORT, STATE_CLOSING);
+  check_interlock(STATE_OPEN, CMD_ABORT, STATE_CLOSING);
+  check_interlock(STATE_CLOSING, CMD_INTERLOCK_CLOSED, STATE_CLOSED);
+  check_interlock(STATE_FAULT_INTERLOCK, CMD_RESET, STATE_CLOSED);
+
+  /* --- Fault entry --- */
+  check_interlock(STATE_CLOSED, CMD_FAULT_DETECTED, STATE_FAULT_INTERLOCK);
+  check_interlock(STATE_CLOSED, CMD_INTERLOCK_FAULT_DETECTED,
+                  STATE_FAULT_INTERLOCK);
+  check_interlock(STATE_OPEN, CMD_FAULT_DETECTED, STATE_FAULT_INTERLOCK);
+  check_interlock(STATE_OPEN, CMD_INTERLOCK_FAULT_DETECTED,
+                  STATE_FAULT_INTERLOCK);
+  check_interlock(STATE_OPENING, CMD_FAULT_DETECTED, STATE_FAULT_INTERLOCK);
+  check_interlock(STATE_OPENING, CMD_INTERLOCK_FAULT_DETECTED,
+                  STATE_FAULT_INTERLOCK);
+  check_interlock(STATE_CLOSING, CMD_FAULT_DETECTED, STATE_FAULT_INTERLOCK);
+  check_interlock(STATE_CLOSING, CMD_INTERLOCK_FAULT_DETECTED,
+                  STATE_FAULT_INTERLOCK);
+
+  /* --- Rejections: state must NOT change --- */
+  check_interlock(STATE_CLOSED, CMD_INTERLOCK_OPENED, STATE_CLOSED);
+  check_interlock(STATE_CLOSED, CMD_ABORT, STATE_CLOSED);
+  check_interlock(STATE_OPEN, CMD_ARM, STATE_OPEN);
+  check_interlock(STATE_OPENING, CMD_ARM, STATE_OPENING);
+  check_interlock(STATE_OPENING, CMD_INTERLOCK_CLOSED, STATE_OPENING);
+  check_interlock(STATE_CLOSING, CMD_INTERLOCK_OPENED, STATE_CLOSING);
+  check_interlock(STATE_CLOSING, CMD_ABORT, STATE_CLOSING);
+  check_interlock(STATE_FAULT_INTERLOCK, CMD_ARM, STATE_FAULT_INTERLOCK);
+  check_interlock(STATE_FAULT_INTERLOCK, CMD_FAULT_DETECTED,
+                  STATE_FAULT_INTERLOCK);
+}
+
+static void test_transitions(void) {
+  /* Run both tests for main and interlock state machine */
+  test_main_transitions();
+  test_interlock_transitions();
+}
 static void test_watchdog_arming(void) { /* ... */ }
 static void test_fault_recovery(void) { /* ... */ }
 
