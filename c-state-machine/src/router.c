@@ -47,7 +47,7 @@ void router(Command cmd, StateMachine *sm,
   // machines, if we include another, we have to change this block of code to
   // reflect
 
-  if (cmd >= CMD_INTERLOCK_OPENED) {
+  if (cmd >= CMD_INTERLOCK_CLOSED) {
     // Handling the routing of the Interlock State Machine
     if (routing_table[cmd][MACHINE_INTERLOCK]) {
       interlock_dispatch(ism, cmd);
