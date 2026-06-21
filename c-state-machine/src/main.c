@@ -46,10 +46,6 @@ int main(void) {
       printf("\n");
     }
 
-    // Creating a pretend "stall", checked and works fine as expected
-    sm.wd.enabled = true;
-    sm.wd.start_tick = now() - 3500;
-
     // Check timer of current state against global for timeouts
     if (check_time(&sm.wd) || check_time(&ism.wd)) {
       printf("LOG: Timeout detected, stalling! FAULT_DETECTED CMD EXECUTED!\n");
