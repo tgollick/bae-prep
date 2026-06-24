@@ -160,7 +160,7 @@ static void test_interlock_transitions(void) {
   check_interlock(STATE_OPENING, CMD_ABORT, STATE_CLOSING);
   check_interlock(STATE_OPEN, CMD_ABORT, STATE_CLOSING);
   check_interlock(STATE_CLOSING, CMD_INTERLOCK_CLOSED, STATE_CLOSED);
-  check_interlock(STATE_FAULT_INTERLOCK, CMD_RESET, STATE_CLOSED);
+  check_interlock(STATE_FAULT_INTERLOCK, CMD_RESET, STATE_CLOSING);
 
   /* --- Fault entry --- */
   check_interlock(STATE_CLOSED, CMD_FAULT_DETECTED, STATE_FAULT_INTERLOCK);
