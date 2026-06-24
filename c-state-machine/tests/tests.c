@@ -1,8 +1,11 @@
+#include "clock.h"
 #include "event_queue.h"
 #include "events.h"
 #include "interlock.h"
+#include "router.h"
 #include "state_machine.h"
 #include "watchdog.h"
+#include <stdint.h>
 #include <stdio.h>
 
 static int checks_run = 0;
@@ -48,22 +51,36 @@ static void test_queue(void) {
   // Check that you cannot add to full queue
   CHECK(!enqueue(CMD_ARM));
 }
-static void test_watchdog_check(void) {
-  Watchdog wd;
 
-  // Set enabled to false and check with check_time function
-  wd.enabled = false;
+static void test_watchdog_check(void) {
+  clock_init();
+  Watchdog wd = {.enabled = false, .start_tick = now(), .limit = 5};
+
+  // if disabled: always false
   CHECK(!check_time(&wd));
 
-  // Don't really know what else to test for here...
+  wd.enabled = true;
+
+  // arm at current tick
+  wd.start_tick = now();
+
+  // elapsed 0, under limit
+  CHECK(!check_time(&wd));
+
+  for (int i = 0; i < 4; i++)
+    clock_tick();
+
+  // elapsed 4, still under limit of 5
+  CHECK(!check_time(&wd));
+  clock_tick();
+
+  // elapsed 5, at limit -> true (it's >=)
+  CHECK(check_time(&wd));
 }
 
 /* ---- Transition tests --------------------------------------------------- */
 /* Force a known source state, dispatch one command, check the resulting      */
-/* state against the value hard-coded here. Helpers print state/command names */
-/* on failure. Expect this to be NOISY - every dispatch fires entry/exit */
-/* actions that printf; scroll for FAIL lines and the final summary. */
-
+/* state against the value hard-coded here. */
 static void check_main(State from, Command cmd, State expected) {
   StateMachine sm = {.current_state = from}; /* wd zero-inits */
   dispatch(&sm, cmd);
@@ -177,8 +194,34 @@ static void test_transitions(void) {
   test_main_transitions();
   test_interlock_transitions();
 }
-static void test_watchdog_arming(void) { /* ... */ }
-static void test_fault_recovery(void) { /* ... */ }
+static void test_watchdog_arming(void) {
+  StateMachine sm = {.current_state = STATE_SAFE};
+  InterlockStateMachine ism = {.current_state = STATE_CLOSED};
+
+  router(CMD_ARM, &sm, dispatch, &ism, interlock_dispatch);
+
+  // Check that after consuming CMD_ARM they are now watchdog enabled
+  CHECK(sm.wd.enabled);
+  CHECK(ism.wd.enabled);
+
+  // And that their limits have been correctly set based off the timeout tables
+  CHECK(sm.wd.limit == 800);
+  CHECK(ism.wd.limit == 500);
+}
+static void test_fault_recovery(void) {
+  StateMachine sm = {.current_state = STATE_ARMED};
+  InterlockStateMachine ism = {.current_state = STATE_OPEN};
+
+  router(CMD_FAULT_DETECTED, &sm, dispatch, &ism, interlock_dispatch);
+
+  CHECK(sm.current_state == STATE_FAULT);
+  CHECK(ism.current_state == STATE_FAULT_INTERLOCK);
+
+  router(CMD_RESET, &sm, dispatch, &ism, interlock_dispatch);
+
+  CHECK(sm.current_state == STATE_DISARMING);
+  CHECK(ism.current_state == STATE_CLOSING);
+}
 
 int main(void) {
   test_queue();
