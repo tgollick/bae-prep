@@ -1,1 +1,162 @@
-[]
+[
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-Wall",
+      "-Wextra",
+      "-std=c99",
+      "-Iinclude",
+      "-o",
+      "state_machine",
+      "src/actions.c"
+    ],
+    "directory": "/home/tgollick/Documents/C/bae-prep/c-state-machine",
+    "file": "/home/tgollick/Documents/C/bae-prep/c-state-machine/src/actions.c",
+    "output": "/home/tgollick/Documents/C/bae-prep/c-state-machine/state_machine"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-Wall",
+      "-Wextra",
+      "-std=c99",
+      "-Iinclude",
+      "-o",
+      "state_machine",
+      "src/clock.c"
+    ],
+    "directory": "/home/tgollick/Documents/C/bae-prep/c-state-machine",
+    "file": "/home/tgollick/Documents/C/bae-prep/c-state-machine/src/clock.c",
+    "output": "/home/tgollick/Documents/C/bae-prep/c-state-machine/state_machine"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-Wall",
+      "-Wextra",
+      "-std=c99",
+      "-Iinclude",
+      "-o",
+      "state_machine",
+      "src/event_queue.c"
+    ],
+    "directory": "/home/tgollick/Documents/C/bae-prep/c-state-machine",
+    "file": "/home/tgollick/Documents/C/bae-prep/c-state-machine/src/event_queue.c",
+    "output": "/home/tgollick/Documents/C/bae-prep/c-state-machine/state_machine"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-Wall",
+      "-Wextra",
+      "-std=c99",
+      "-Iinclude",
+      "-o",
+      "state_machine",
+      "src/events.c"
+    ],
+    "directory": "/home/tgollick/Documents/C/bae-prep/c-state-machine",
+    "file": "/home/tgollick/Documents/C/bae-prep/c-state-machine/src/events.c",
+    "output": "/home/tgollick/Documents/C/bae-prep/c-state-machine/state_machine"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-Wall",
+      "-Wextra",
+      "-std=c99",
+      "-Iinclude",
+      "-o",
+      "state_machine",
+      "src/interlock.c"
+    ],
+    "directory": "/home/tgollick/Documents/C/bae-prep/c-state-machine",
+    "file": "/home/tgollick/Documents/C/bae-prep/c-state-machine/src/interlock.c",
+    "output": "/home/tgollick/Documents/C/bae-prep/c-state-machine/state_machine"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-Wall",
+      "-Wextra",
+      "-std=c99",
+      "-Iinclude",
+      "-o",
+      "state_machine",
+      "src/logger.c"
+    ],
+    "directory": "/home/tgollick/Documents/C/bae-prep/c-state-machine",
+    "file": "/home/tgollick/Documents/C/bae-prep/c-state-machine/src/logger.c",
+    "output": "/home/tgollick/Documents/C/bae-prep/c-state-machine/state_machine"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-Wall",
+      "-Wextra",
+      "-std=c99",
+      "-Iinclude",
+      "-o",
+      "state_machine",
+      "src/main.c"
+    ],
+    "directory": "/home/tgollick/Documents/C/bae-prep/c-state-machine",
+    "file": "/home/tgollick/Documents/C/bae-prep/c-state-machine/src/main.c",
+    "output": "/home/tgollick/Documents/C/bae-prep/c-state-machine/state_machine"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-Wall",
+      "-Wextra",
+      "-std=c99",
+      "-Iinclude",
+      "-o",
+      "state_machine",
+      "src/router.c"
+    ],
+    "directory": "/home/tgollick/Documents/C/bae-prep/c-state-machine",
+    "file": "/home/tgollick/Documents/C/bae-prep/c-state-machine/src/router.c",
+    "output": "/home/tgollick/Documents/C/bae-prep/c-state-machine/state_machine"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-Wall",
+      "-Wextra",
+      "-std=c99",
+      "-Iinclude",
+      "-o",
+      "state_machine",
+      "src/state_machine.c"
+    ],
+    "directory": "/home/tgollick/Documents/C/bae-prep/c-state-machine",
+    "file": "/home/tgollick/Documents/C/bae-prep/c-state-machine/src/state_machine.c",
+    "output": "/home/tgollick/Documents/C/bae-prep/c-state-machine/state_machine"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-Wall",
+      "-Wextra",
+      "-std=c99",
+      "-Iinclude",
+      "-o",
+      "state_machine",
+      "src/watchdog.c"
+    ],
+    "directory": "/home/tgollick/Documents/C/bae-prep/c-state-machine",
+    "file": "/home/tgollick/Documents/C/bae-prep/c-state-machine/src/watchdog.c",
+    "output": "/home/tgollick/Documents/C/bae-prep/c-state-machine/state_machine"
+  }
+]
